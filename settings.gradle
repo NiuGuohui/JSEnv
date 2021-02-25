@@ -1,0 +1,3 @@
+include ':JSEnv'
+include ':example'
+rootProject.name = "JSenv"
