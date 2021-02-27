@@ -7,7 +7,7 @@ abstract class JSInterface(protected val runtime: V8) : IJSInterface {
 
     override abstract fun install()
 
-    override abstract fun release()
+    override fun release() {}
 
     fun checkThread() = runtime.locker.checkThread()
 }

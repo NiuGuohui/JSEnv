@@ -1,17 +1,14 @@
 package com.aolig.jsenv
 
-import com.eclipsesource.v8.JavaCallback
-import com.eclipsesource.v8.V8
-import com.eclipsesource.v8.V8Array
-import com.eclipsesource.v8.V8Object
+import com.eclipsesource.v8.*
 import com.eclipsesource.v8.utils.V8ObjectUtils
 import com.orhanobut.logger.Logger
+import kotlin.reflect.typeOf
 
 class Console(runtime: V8) : JSInterface(runtime) {
     private val consoleV8Obj = V8Object(runtime)
 
     private val log: JavaCallback = JavaCallback { _, v8Array ->
-        // TODO("实现自动解析v8对象，并转化为json展示")
         val args = this.print(v8Array)
         Logger.d(args[0], *args.sliceArray(1 until args.size))
         null
@@ -41,6 +38,8 @@ class Console(runtime: V8) : JSInterface(runtime) {
         consoleV8Obj.registerJavaMethod(info, "info")
         consoleV8Obj.registerJavaMethod(error, "error")
         consoleV8Obj.registerJavaMethod(warn, "warn")
+
+        consoleV8Obj.close()
     }
 
     override fun release() {
@@ -52,13 +51,25 @@ class Console(runtime: V8) : JSInterface(runtime) {
         val length = v8Array.length()
         val o = V8ObjectUtils.getValue(v8Array, 0)
         val objects = arrayOfNulls<String>(length)
-        if (o is String && o.matches(Regex("%[a-zA-Z0-9]"))) {
+        // 如果第一位是String的话，且包含%sdif之一的话，表示为formatString打印
+        if (o is String && o.matches(Regex("%[sdif]"))) {
             for (i in 1 until length) {
                 objects[i - 1] = V8ObjectUtils.getValue(v8Array, i) as String
             }
-        } else {
+        } else {// 此时console.log的参数内容可能是各种其他类型
             for (i in 0 until length) {
-                objects[i] = V8ObjectUtils.getValue(v8Array, i) as String
+                val value = V8ObjectUtils.getValue(v8Array, i)
+                // 判断参数内容是什么
+                if (value is V8Object) {
+                    when (val type = value.v8Type) {
+                        1, 2, 3, 4 -> objects[i] = value.toString()
+                        else -> {
+                            objects[i] = "[Object ${V8Value.getStringRepresentation(type)}]"
+                        }
+                    }
+                } else {// 基本类型直接展示
+                    objects[i] = value.toString()
+                }
             }
         }
         return objects.filterNotNull().toTypedArray()
