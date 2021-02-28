@@ -8,14 +8,14 @@ import com.aolig.jsenv.JSEnv
 
 class MainActivity() : Activity() {
     private var NODE_SCRIPT = """console.log('213%s321','Niu');
-        setTimeout(()=>{
+        const o=setTimeout(()=>{
         var a = new Promise((r)=>{r(1);
         console.log('inner')});
         console.log(333);
         a.then(e=>console.log(e));
         console.log(666);
-        setTimeout(()=>{console.log('2level')},1000)
-        },1000)""".trimMargin()
+        const i = setInterval(()=>{console.log('2level');clearInterval(i)},1000)
+        },1000);console.log('后面');""".trimMargin()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
