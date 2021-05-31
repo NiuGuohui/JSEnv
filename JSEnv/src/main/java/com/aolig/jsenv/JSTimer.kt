@@ -7,9 +7,6 @@ import com.eclipsesource.v8.*
  * JS定时器实现
  */
 class JSTimer(runtime: V8, actuator: JSActuator) : JSInterface(runtime, actuator) {
-    // 执行器handler
-    private val handler = Handler(actuator.looper)
-
     // 定时器Id
     private var timerId = 0
     private val timerMap = mutableMapOf<Int, Runnable>()

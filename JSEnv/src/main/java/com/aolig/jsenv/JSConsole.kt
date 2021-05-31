@@ -8,7 +8,7 @@ import kotlin.reflect.typeOf
 /**
  * JS Console对象实现
  */
-class Console(runtime: V8, actuator: JSActuator) : JSInterface(runtime, actuator) {
+class JSConsole(runtime: V8, actuator: JSActuator) : JSInterface(runtime, actuator) {
     private val consoleV8Obj = V8Object(runtime)
 
     private val log: JavaCallback = JavaCallback { _, v8Array ->

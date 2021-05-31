@@ -42,5 +42,6 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
-    implementation(project(":JSEnv"))
+    implementation project(":JSEnv")
+    implementation 'com.github.AlexTrotsenko:j2v8-debugger:0.2.3'
 }

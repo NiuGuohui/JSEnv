@@ -1,4 +1,4 @@
-package com.aolig.jsenv.actuator
+package com.aolig.jsenv
 
 import com.eclipsesource.v8.V8Array
 import com.eclipsesource.v8.V8Function

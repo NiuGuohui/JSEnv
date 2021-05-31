@@ -43,6 +43,7 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
+    implementation 'com.github.AlexTrotsenko:j2v8-debugger:0.2.3'
     implementation 'com.eclipsesource.j2v8:j2v8:6.2.0@aar'
     implementation 'com.orhanobut:logger:2.2.0'
 }

@@ -4,11 +4,12 @@ package com.aolig.jsenv
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
-import com.aolig.jsenv.actuator.MessageTask
+import com.alexii.j2v8debugger.V8Debugger
 import com.eclipsesource.v8.V8
 import com.eclipsesource.v8.V8Array
 import com.eclipsesource.v8.V8Function
 import com.orhanobut.logger.Logger
+import java.util.concurrent.Future
 import kotlin.reflect.KClass
 import kotlin.reflect.full.primaryConstructor
 
@@ -21,16 +22,27 @@ class JSActuator(
     private val interfaceMap: List<KClass<out IJSInterface>>
 ) : Thread() {
     // 消息处理Handler
-    private lateinit var mHandler: Handler
+    private val mHandler: Handler by lazy {
+        Handler(looper) {
+            try {
+                checkThread()
+                val task = it.obj as MessageTask
+                task.fn.call(runtime, task.params())
+            } catch (e: Exception) {
+                Logger.e(e.toString())
+            }
+            true
+        }
+    }
 
     // 执行器线程looper
-    lateinit var looper: Looper
+    val looper: Looper by lazy { Looper.myLooper()!! }
 
     // v8执行环境
-    private lateinit var runtime: V8
+    private val runtime: V8 by lazy { V8.createV8Runtime(runtimeGlobal) }
 
     companion object {
-        val runtimeGlobal = "global"
+        const val runtimeGlobal = "global"
     }
 
     /**
@@ -44,20 +56,6 @@ class JSActuator(
 
     override fun run() {
         if (Looper.myLooper() == null) Looper.prepare()
-        looper = Looper.myLooper()!!
-        // 消息处理handler
-        mHandler = Handler(looper) {
-            try {
-                checkThread()
-                val task = it.obj as MessageTask
-                task.fn.call(runtime, task.params())
-            } catch (e: Exception) {
-                Logger.e(e.toString())
-            }
-            true
-        }
-        // 创建执行环境
-        runtime = V8.createV8Runtime(runtimeGlobal)
         // 通过反射，将外部自定义的功能类全部注入环境
         interfaceMap.forEach {
             try {
